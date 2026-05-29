@@ -39,7 +39,7 @@ public class NotificationService {
                 .postId(postId)
                 .meetupId(meetupId)
                 .build();
-        notificationRepository.save(notification);
+        notificationRepository.saveAndFlush(notification);
 
         // IN_APP 발송 기록
         saveDelivery(notification.getId(), "IN_APP");

@@ -30,8 +30,8 @@ public class ReportEventConsumer {
 
             notificationService.createNotification(
                     ADMIN_MEMBER_ID,
-                    "REPORT_RECEIVED",
-                    "[" + targetType + "] 신고가 접수되었습니다. (신고 ID: " + reportId + ")",
+                    "ADMIN_NEW_REPORT",
+                    "새 신고가 접수되었습니다. 대상: " + targetType,
                     null, null, null
             );
         } catch (Exception e) {
@@ -51,24 +51,22 @@ public class ReportEventConsumer {
             Long reportedWriterMemberId = Long.valueOf(payload.get("reportedWriterMemberId").toString());
             log.info("[Kafka] report.resolved consumed: reportId={}, status={}", reportId, status);
 
-            String resultMsg = "RESOLVED".equals(status) ? "처리 완료" : "반려";
-
             // 신고자에게 알림
             if (reporterMemberId > 0) {
                 notificationService.createNotification(
                         reporterMemberId,
                         "REPORT_RESULT",
-                        "접수하신 신고가 " + resultMsg + "되었습니다.",
+                        "RESOLVED".equals(status) ? "신고가 처리되었습니다." : "신고가 반려되었습니다.",
                         null, null, null
                 );
             }
 
-            // 피신고자에게 알림 (RESOLVED인 경우만)
+            // 피신고자에게 알림 (RESOLVED이고 유효 회원인 경우만)
             if ("RESOLVED".equals(status) && reportedWriterMemberId > 0) {
                 notificationService.createNotification(
                         reportedWriterMemberId,
-                        "REPORT_ACTION_TAKEN",
-                        "작성하신 콘텐츠에 대한 신고가 처리되었습니다.",
+                        "REPORT_SANCTIONED",
+                        "귀하의 콘텐츠에 대한 신고가 처리되었습니다.",
                         null, null, null
                 );
             }
